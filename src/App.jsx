@@ -9,33 +9,23 @@ import NoteList from "./components/NoteList";
 function App() {
   const [activeNotes, setActiveNotes] = useState([]);
   const [archiveNotes, setArchiveNotes] = useState([]);
-  const [query, setQuery] = useState(null);
-  const [getInitData, setGetInitData] = useState(true);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
-    if (getInitData) {
-      const fetch = async () => {
-        const initData = await getInitialData();
-        setActiveNotes(initData);
-      };
-      fetch();
-      setGetInitData(false);
-    }
-  }, [getInitData]);
+    const fetch = async () => {
+      const initData = await getInitialData();
+      setActiveNotes(initData);
+    };
+    fetch();
+  }, []);
 
-  useEffect(() => {
-    if (query === "") setGetInitData(true);
+  const activeNotesSearch = activeNotes.filter((item) => {
+    return item.title.toLowerCase().includes(query.toLowerCase());
+  });
 
-    const newActiveNotes = activeNotes.filter(
-      (note) => note?.title?.toLowerCase().includes(query?.toLowerCase()) || note?.body?.toLowerCase().includes(query?.toLowerCase()) || showFormattedDate(note?.createdAt).toLocaleLowerCase().includes(query?.toLowerCase())
-    );
-    const newArchiveNotes = archiveNotes.filter(
-      (note) => note?.title?.toLowerCase().includes(query?.toLowerCase()) || note?.body?.toLowerCase().includes(query?.toLowerCase()) || showFormattedDate(note?.createdAt).toLocaleLowerCase().includes(query?.toLowerCase())
-    );
-
-    setActiveNotes(newActiveNotes);
-    setArchiveNotes(newArchiveNotes);
-  }, [query]);
+  const archiveNotesSearch = archiveNotes.filter((item) => {
+    return item.title.toLowerCase().includes(query.toLowerCase());
+  });
 
   const searchHandler = (e) => {
     setQuery(e.target.value);
@@ -70,8 +60,8 @@ function App() {
       <Header searchHandler={searchHandler} />
       <Body>
         <NoteInput activeNotes={activeNotes} setActiveNotes={setActiveNotes} />
-        <NoteList notes={activeNotes} text={"Active Notes"} deleteHandler={deleteNote} archiveHandler={archiveNote} />
-        <NoteList notes={archiveNotes} text={"Archive Notes"} deleteHandler={deleteNote} archiveHandler={archiveNote} />
+        <NoteList notes={activeNotesSearch} text={"Active Notes"} deleteHandler={deleteNote} archiveHandler={archiveNote} />
+        <NoteList notes={archiveNotesSearch} text={"Archive Notes"} deleteHandler={deleteNote} archiveHandler={archiveNote} />
       </Body>
     </>
   );
